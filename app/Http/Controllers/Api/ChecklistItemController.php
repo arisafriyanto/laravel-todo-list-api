@@ -13,23 +13,20 @@ class ChecklistItemController extends Controller
 {
     private function findChecklist($checklistId)
     {
-        $checklist = Checklist::where('id', $checklistId)
+        return Checklist::where('id', $checklistId)
             ->where('user_id', auth()->id())
             ->first();
+    }
 
+    public function index($checklistId)
+    {
+        $checklist = $this->findChecklist($checklistId);
         if (!$checklist) {
             return response()->json([
                 'success' => false,
                 'errors' => 'Checklist not found'
             ], 404);
         }
-
-        return $checklist;
-    }
-
-    public function index($checklistId)
-    {
-        $checklist = $this->findChecklist($checklistId);
 
         $items = $checklist->items;
         return response()->json([
@@ -41,7 +38,14 @@ class ChecklistItemController extends Controller
 
     public function store(ChecklistItemRequest $request, $checklistId)
     {
-        $this->findChecklist($checklistId);
+        $checklist = $this->findChecklist($checklistId);
+
+        if (!$checklist) {
+            return response()->json([
+                'success' => false,
+                'errors' => 'Checklist not found'
+            ], 404);
+        }
 
         $item = ChecklistItem::create([
             'checklist_id' => $checklistId,
@@ -58,6 +62,12 @@ class ChecklistItemController extends Controller
     public function show($checklistId, $checklistItemId)
     {
         $checklist = $this->findChecklist($checklistId);
+        if (!$checklist) {
+            return response()->json([
+                'success' => false,
+                'errors' => 'Checklist not found'
+            ], 404);
+        }
 
         $item = $checklist->items()->find($checklistItemId);
         if (!$item) {
@@ -77,6 +87,12 @@ class ChecklistItemController extends Controller
     public function update(Request $request, $checklistId, $checklistItemId)
     {
         $checklist = $this->findChecklist($checklistId);
+        if (!$checklist) {
+            return response()->json([
+                'success' => false,
+                'errors' => 'Checklist not found'
+            ], 404);
+        }
 
         $item = $checklist->items()->find($checklistItemId);
         if (!$item) {
@@ -115,6 +131,12 @@ class ChecklistItemController extends Controller
     public function destroy($checklistId, $checklistItemId)
     {
         $checklist = $this->findChecklist($checklistId);
+        if (!$checklist) {
+            return response()->json([
+                'success' => false,
+                'errors' => 'Checklist not found'
+            ], 404);
+        }
 
         $item = $checklist->items()->find($checklistItemId);
         if (!$item) {
